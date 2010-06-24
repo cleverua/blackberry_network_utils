@@ -1,0 +1,51 @@
+## RIM Java Development Environment
+# RIM Project file
+#
+# This file is generated and managed by BlackBerry developer tools.
+# It SHOULD NOT BE modified manually.
+#
+AddOn=0
+AlwaysBuild=0
+[AlxImports
+]
+AutoRestart=0
+[ClassProtection
+]
+[CustomBuildFiles
+]
+[CustomBuildRules
+]
+[DefFiles
+]
+[DependsOn
+]
+ExcludeFromBuildAll=0
+[Files
+src\com\cleverua\bb\Constants.java
+src\com\cleverua\bb\IOUtils.java
+src\com\cleverua\bb\Logger.java
+src\com\cleverua\bb\NetworkUtils.java
+src\com\cleverua\bb\Transports.java
+]
+HaveAlxImports=0
+HaveDefs=0
+HaveImports=0
+[Icons
+]
+[ImplicitRules
+]
+[Imports
+]
+Listing=0
+Options=-quiet 
+OutputFileName=bb_network_utils
+[PackageProtection
+]
+RibbonPosition=0
+[RolloverIcons
+]
+RunOnStartup=0
+StartupTier=7
+SystemModule=0
+Title=BB Network Utils Demo
+Type=0
