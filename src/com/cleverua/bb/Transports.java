@@ -2,8 +2,6 @@ package com.cleverua.bb;
 
 import java.io.EOFException;
 
-import com.daxium.pictbase.utils.Logger;
-
 import net.rim.device.api.servicebook.ServiceBook;
 import net.rim.device.api.servicebook.ServiceRecord;
 import net.rim.device.api.synchronization.ConverterUtilities;
