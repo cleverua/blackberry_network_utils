@@ -15,7 +15,7 @@ public class Transports {
     private static final String CONNECTION_TYPE_BIS = ";ConnectionType=mds-public";
     public static final int MDS         = 0;
     public static final int BIS         = 1;
-    public static final int WAP         = 2;
+    private static final int WAP        = 2;    // WAP 1.x is not supported yet
     public static final int WAP2        = 3;
     public static final int WIFI        = 4;
     public static final int DIRECT_TCP  = 5;
@@ -110,10 +110,10 @@ public class Transports {
     }
 
     private String getBISUrl(String baseUrl) {
-        return baseUrl + CONNECTION_TYPE_BIS;
+        return baseUrl + DEVICESIDE_FALSE + CONNECTION_TYPE_BIS;
     }
     
-    // TODO: Manage WAP's attributes
+    // TODO: Manage WAP's attributes (for WAP 1.x)
     private String getWAPUrl(String baseUrl) {
         return baseUrl + DEVICESIDE_TRUE;
     }
@@ -126,7 +126,12 @@ public class Transports {
         return baseUrl + INTERFACE_WIFI;
     }
     
-    // TODO: manage APN's
+    // TODO: manage APN's. 
+    /**
+     * This method intends that user has filled the APN settings in device options. 
+     * So the result url WILL NOT include the 
+     * <b>apn</b>, <b>tunnelauthusername</b> and <b>tunnelauthpassword</b> parameters. 
+     */
     private String getTCPUrl(String baseUrl) {
         return baseUrl + DEVICESIDE_TRUE;
     }
