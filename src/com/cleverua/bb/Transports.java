@@ -2,10 +2,13 @@ package com.cleverua.bb;
 
 import java.io.EOFException;
 
+import com.daxium.pictbase.utils.Logger;
+
 import net.rim.device.api.servicebook.ServiceBook;
 import net.rim.device.api.servicebook.ServiceRecord;
 import net.rim.device.api.synchronization.ConverterUtilities;
 import net.rim.device.api.system.CoverageInfo;
+import net.rim.device.api.system.RadioInfo;
 import net.rim.device.api.system.WLANInfo;
 import net.rim.device.api.util.DataBuffer;
 
@@ -66,19 +69,20 @@ public class Transports {
     public boolean isAcceptable(int transportType) {
         switch (transportType) {
             case Transports.MDS: 
-                return coverageMDS;
+                return coverageMDS && (srMDS != null);
             case Transports.BIS: 
-                return coverageBIS;
+                return coverageBIS && (srBIS != null);
             case Transports.WAP: 
-                return coverageWAP;
+                return coverageWAP && (srWAP != null);
             case Transports.WAP2: 
-                return coverageWAP2;
+                return coverageWAP2 && (srWAP2 != null);
             case Transports.WIFI: 
+//                return coverageWiFi && (srWiFi != null);
                 return coverageWiFi;
             case Transports.DIRECT_TCP: 
                 return coverageTCP;
             case Transports.UNITE: 
-                return coverageUnite;
+                return coverageUnite && (srUnite != null);
             default: 
                 return false;
         }
@@ -157,46 +161,65 @@ public class Transports {
                 uid = myRecord.getUid().toLowerCase();
                 // BIS
                 if (cid.indexOf(IPPP_STR) != -1 && uid.indexOf(GPMDS_STR) != -1) {
+                    Logger.debug("BIS record detected!");
+                    Logger.debug("cid = " + cid + ", uid = " + uid);
                     srBIS = myRecord;
                 }           
 
                 // BES
                 if (cid.indexOf(IPPP_STR) != -1 && uid.indexOf(GPMDS_STR) == -1) {
+                    Logger.debug("BES record detected!");
+                    Logger.debug("cid = " + cid + ", uid = " + uid);
                     srMDS = myRecord;
                 }
                 // WiFi
                 if (cid.indexOf(WPTCP_STR) != -1 && uid.indexOf(WIFI_STR) != -1) {
+                    Logger.debug("WiFi record detected!");
+                    Logger.debug("cid = " + cid + ", uid = " + uid);
                     srWiFi = myRecord;
                 }       
                 // Wap1.0
                 if (getConfigType(myRecord)==CONFIG_TYPE_WAP && cid.equalsIgnoreCase(WAP_STR)) {
+                    Logger.debug("WAP 1.x record detected!");
+                    Logger.debug("cid = " + cid + ", uid = " + uid);
                     srWAP = myRecord;
                 }
                 // Wap2.0
                 if (cid.indexOf(WPTCP_STR) != -1 && uid.indexOf(WIFI_STR) == -1 && uid.indexOf(MMS_STR) == -1) {
+                    Logger.debug("WAP 2 record detected!");
+                    Logger.debug("cid = " + cid + ", uid = " + uid);
                     srWAP2 = myRecord;
                 }
                 // Unite
                 if(getConfigType(myRecord) == CONFIG_TYPE_BES && myRecord.getName().equalsIgnoreCase(UNITE_STR)) {
+                    Logger.debug("Unite record detected!");
+                    Logger.debug("cid = " + cid + ", uid = " + uid);
                     srUnite = myRecord;
                 }
             }   
         }
         
         if(CoverageInfo.isCoverageSufficient(CoverageInfo.COVERAGE_BIS_B)){
+            Logger.debug("BIS coverage detected!");
             coverageBIS=true;   
-        }       
+        }  
+        
         if(CoverageInfo.isCoverageSufficient(CoverageInfo.COVERAGE_DIRECT)){
+            Logger.debug("TCP, WAP 1.x, WAP 2 coverages detected!");
             coverageTCP=true;
             coverageWAP=true;
             coverageWAP2=true;
         }
-        if(CoverageInfo.isCoverageSufficient(CoverageInfo.COVERAGE_MDS)){           
+        
+        if(CoverageInfo.isCoverageSufficient(CoverageInfo.COVERAGE_MDS)){
+            Logger.debug("BES-MDS, Unite coverage detected!");
             coverageMDS=true;
             coverageUnite=true;
         }   
         
-        if(WLANInfo.getWLANState()==WLANInfo.WLAN_STATE_CONNECTED){
+        if(RadioInfo.areWAFsSupported(RadioInfo.WAF_WLAN) /* does the device support WiFi? */ && 
+                WLANInfo.getWLANState()==WLANInfo.WLAN_STATE_CONNECTED /* is the WiFi connected? */){
+            Logger.debug("WiFi coverage detected!");
             coverageWiFi = true;
         }
     }
