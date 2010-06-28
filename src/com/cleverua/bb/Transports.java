@@ -46,7 +46,7 @@ public class Transports {
     private ServiceRecord srBIS;
     private ServiceRecord srWAP;
     private ServiceRecord srWAP2;
-    private ServiceRecord srWiFi;
+//    private ServiceRecord srWiFi;
     private ServiceRecord srUnite;
 
     private boolean coverageTCP   = false;
@@ -66,23 +66,31 @@ public class Transports {
 
     public boolean isAcceptable(int transportType) {
         switch (transportType) {
-            case Transports.MDS: 
+            case Transports.MDS: {
                 return coverageMDS && (srMDS != null);
-            case Transports.BIS: 
+            }
+            case Transports.BIS: { 
                 return coverageBIS && (srBIS != null);
-            case Transports.WAP: 
+            }
+            case Transports.WAP: { 
                 return coverageWAP && (srWAP != null);
-            case Transports.WAP2: 
+            }
+            case Transports.WAP2: { 
                 return coverageWAP2 && (srWAP2 != null);
-            case Transports.WIFI: 
+            }
+            case Transports.WIFI: { 
 //                return coverageWiFi && (srWiFi != null);
                 return coverageWiFi;
-            case Transports.DIRECT_TCP: 
+            }
+            case Transports.DIRECT_TCP: { 
                 return coverageTCP;
-            case Transports.UNITE: 
+            }
+            case Transports.UNITE: { 
                 return coverageUnite && (srUnite != null);
-            default: 
+            }
+            default: { 
                 return false;
+            }
         }
     }
     
@@ -170,12 +178,15 @@ public class Transports {
                     Logger.debug("cid = " + cid + ", uid = " + uid);
                     srMDS = myRecord;
                 }
-                // WiFi
-                if (cid.indexOf(WPTCP_STR) != -1 && uid.indexOf(WIFI_STR) != -1) {
-                    Logger.debug("WiFi record detected!");
-                    Logger.debug("cid = " + cid + ", uid = " + uid);
-                    srWiFi = myRecord;
-                }       
+                /* WiFi - we do not need the WiFi record. 
+                 * If the mobile network is disabled the records in the Service Book is disabled too. 
+                 * But in does not mean that WiFi is unavailable. 
+                 * So we'll check the WiFi with the other methods later. */
+//                if (cid.indexOf(WPTCP_STR) != -1 && uid.indexOf(WIFI_STR) != -1) {
+//                    Logger.debug("WiFi record detected!");
+//                    Logger.debug("cid = " + cid + ", uid = " + uid);
+//                    srWiFi = myRecord;
+//                }       
                 // Wap1.0
                 if (getConfigType(myRecord)==CONFIG_TYPE_WAP && cid.equalsIgnoreCase(WAP_STR)) {
                     Logger.debug("WAP 1.x record detected!");
@@ -197,28 +208,32 @@ public class Transports {
             }   
         }
         
-        if(CoverageInfo.isCoverageSufficient(CoverageInfo.COVERAGE_BIS_B)){
-            Logger.debug("BIS coverage detected!");
-            coverageBIS=true;   
-        }  
-        
-        if(CoverageInfo.isCoverageSufficient(CoverageInfo.COVERAGE_DIRECT)){
-            Logger.debug("TCP, WAP 1.x, WAP 2 coverages detected!");
-            coverageTCP=true;
-            coverageWAP=true;
-            coverageWAP2=true;
-        }
-        
-        if(CoverageInfo.isCoverageSufficient(CoverageInfo.COVERAGE_MDS)){
-            Logger.debug("BES-MDS, Unite coverage detected!");
-            coverageMDS=true;
-            coverageUnite=true;
-        }   
-        
-        if(RadioInfo.areWAFsSupported(RadioInfo.WAF_WLAN) /* does the device support WiFi? */ && 
-                WLANInfo.getWLANState()==WLANInfo.WLAN_STATE_CONNECTED /* is the WiFi connected? */){
-            Logger.debug("WiFi coverage detected!");
-            coverageWiFi = true;
+        if (!CoverageInfo.isOutOfCoverage()) { /* data service turned ON in options */
+            if (RadioInfo.isDataServiceOperational()) { /* radio enabled */
+                if(CoverageInfo.isCoverageSufficient(CoverageInfo.COVERAGE_BIS_B)){
+                    Logger.debug("BIS coverage detected!");
+                    coverageBIS=true;   
+                }  
+                
+                if(CoverageInfo.isCoverageSufficient(CoverageInfo.COVERAGE_DIRECT)){
+                    Logger.debug("TCP, WAP 1.x, WAP 2 coverages detected!");
+                    coverageTCP=true;
+                    coverageWAP=true;
+                    coverageWAP2=true;
+                }
+                
+                if(CoverageInfo.isCoverageSufficient(CoverageInfo.COVERAGE_MDS)){
+                    Logger.debug("BES-MDS, Unite coverage detected!");
+                    coverageMDS=true;
+                    coverageUnite=true;
+                }   
+            }
+            
+            if(RadioInfo.areWAFsSupported(RadioInfo.WAF_WLAN) /* does the device support WiFi? */ && 
+                    WLANInfo.getWLANState()==WLANInfo.WLAN_STATE_CONNECTED /* is the WiFi connected? */){
+                Logger.debug("WiFi coverage detected!");
+                coverageWiFi = true;
+            }
         }
     }
 
