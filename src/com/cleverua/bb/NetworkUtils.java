@@ -6,6 +6,11 @@ import javax.microedition.io.Connector;
 import javax.microedition.io.HttpConnection;
 
 public class NetworkUtils {
+    public static final int[] CONSUMER_TRANSPORT_PRIORITIES = new int[]{
+        Transports.WIFI, Transports.WAP2, Transports.BIS, Transports.MDS, Transports.DIRECT_TCP};
+    public static final int[] ENTERPRISE_TRANSPORT_PRIORITIES = new int[]{
+        Transports.MDS, Transports.WIFI, Transports.WAP2, Transports.BIS, Transports.DIRECT_TCP};
+    
     public static String getConnectionUrl(String baseUrl, int[] transportPriorities) {
         Transports transports = Transports.getInstance();
         for (int i = 0; i < transportPriorities.length; i++) {
@@ -21,6 +26,7 @@ public class NetworkUtils {
     }
 
     private static boolean testHTTP(String url) {
+        Logger.debug("Testing url: " + url);
         HttpConnection hconn = null;
         try {           
             Logger.debug("Openning connection");
@@ -31,27 +37,18 @@ public class NetworkUtils {
             int responseCode = hconn.getResponseCode();
             Logger.debug("Got response code: "+responseCode);
             return true;
-//            if (responseCode != HttpConnection.HTTP_OK) {
-//                Logger.debug("Response code is not OK!");
-//                return false;
-////                throw new IOException("HTTP response code: " + responseCode);
-//            }
-//            Logger.debug("Got response: "+responseCode);
-            
-//            Logger.debug("Reading content");
-//            InputStream is = hconn.openInputStream();
-//            String result = read(is);
-//            Logger.debug("Received content. Length: "+result.length());
         } catch (Exception e) {
             Logger.debug("Got exception: " + e);
             return false;
         } finally {
-            try {
-                Logger.debug("Closing connection");
-                hconn.close();
-                Logger.debug("Connection closed");
-            } catch (IOException e) {
-                Logger.debug("Exception while closing HTTP connection: " + e);
+            if (hconn != null) {
+                try {
+                    Logger.debug("Closing connection");
+                    hconn.close();
+                    Logger.debug("Connection closed");
+                } catch (IOException e) {
+                    Logger.debug("Exception while closing HTTP connection: " + e);
+                }
             }
         }
     }
