@@ -6,6 +6,7 @@ import net.rim.device.api.servicebook.ServiceBook;
 import net.rim.device.api.servicebook.ServiceRecord;
 import net.rim.device.api.synchronization.ConverterUtilities;
 import net.rim.device.api.system.CoverageInfo;
+import net.rim.device.api.system.DeviceInfo;
 import net.rim.device.api.system.RadioInfo;
 import net.rim.device.api.system.WLANInfo;
 import net.rim.device.api.util.DataBuffer;
@@ -14,14 +15,16 @@ public class Transports {
     private static final String INTERFACE_WIFI = ";interface=wifi";
     private static final String CONNECTION_UID = ";ConnectionUID=";
     private static final String CONNECTION_TYPE_BIS = ";ConnectionType=mds-public";
-    public static final int MDS         = 0;
-    public static final int BIS         = 1;
-    private static final int WAP        = 2;    // WAP 1.x is not supported yet
-    public static final int WAP2        = 3;
-    public static final int WIFI        = 4;
-    public static final int DIRECT_TCP  = 5;
-    public static final int UNITE       = 6;
-
+    
+    public static final String MDS         = "MDS";
+    public static final String BIS         = "BIS";
+    private static final String WAP        = "WAP 1.x";    // WAP 1.x is not supported yet
+    public static final String WAP2        = "WAP2";
+    public static final String WIFI        = "WiFi";
+    public static final String DIRECT_TCP  = "Direct TCP";
+    public static final String UNITE       = "Unite";
+    public static final String AUTOMATIC   = "Automatic";
+    
     /** 
      * CONFIG_TYPE_ constants which are used to find appropriate service books.
      * TODO Currently only Unite is detected this way. 
@@ -64,54 +67,51 @@ public class Transports {
         return instance;
     }
 
-    public boolean isAcceptable(int transportType) {
-        switch (transportType) {
-            case Transports.MDS: {
-                return coverageMDS && (srMDS != null);
-            }
-            case Transports.BIS: { 
-                return coverageBIS && (srBIS != null);
-            }
-            case Transports.WAP: { 
-                return coverageWAP && (srWAP != null);
-            }
-            case Transports.WAP2: { 
-                return coverageWAP2 && (srWAP2 != null);
-            }
-            case Transports.WIFI: { 
-//                return coverageWiFi && (srWiFi != null);
-                return coverageWiFi;
-            }
-            case Transports.DIRECT_TCP: { 
-                return coverageTCP;
-            }
-            case Transports.UNITE: { 
-                return coverageUnite && (srUnite != null);
-            }
-            default: { 
-                return false;
-            }
+    public boolean isAcceptable(String transportType) {
+        if (MDS.equals(transportType)) {
+            return coverageMDS && (srMDS != null);
+        } else if (BIS.equals(transportType)) {
+            return coverageBIS && (srBIS != null);
+        } else if (WAP.equals(transportType)) {
+            return coverageWAP && (srWAP != null);
+        } else if (WAP2.equals(transportType)) {
+            return coverageWAP2 && (srWAP2 != null);
+        } else if (WIFI.equals(transportType)) {
+//          return coverageWiFi && (srWiFi != null);
+            return coverageWiFi;
+        } else if (DIRECT_TCP.equals(transportType)) {
+            return coverageTCP;   
+        } else if (UNITE.equals(transportType)) {
+            return coverageUnite && (srUnite != null);
+        } else {
+            return false;
         }
     }
     
-    public String getUrlForTransport(String baseUrl, int transportType) {
-        switch (transportType) {
-            case Transports.MDS: 
-                return getMDSUrl(baseUrl);
-            case Transports.BIS: 
-                return getBISUrl(baseUrl);
-            case Transports.WAP: 
-                return getWAPUrl(baseUrl);
-            case Transports.WAP2: 
-                return getWAP2Url(baseUrl);
-            case Transports.WIFI: 
-                return getWiFiUrl(baseUrl);
-            case Transports.DIRECT_TCP: 
-                return getTCPUrl(baseUrl);
-            case Transports.UNITE: 
-                return getUniteUrl(baseUrl);
-            default: 
-                return null;
+    public String getUrlForTransport(String baseUrl, String transportType) {
+        if (MDS.equals(transportType)) {
+            Logger.debug("Preparing url for MDS...");
+            return getMDSUrl(baseUrl);
+        } else if (BIS.equals(transportType)) {            
+            Logger.debug("Preparing url for BIS...");
+            return getBISUrl(baseUrl);
+        } else if (WAP.equals(transportType)) {
+            Logger.debug("Preparing url for WAP 1.x...");
+            return getWAPUrl(baseUrl);
+        } else if (WAP2.equals(transportType)) {
+            Logger.debug("Preparing url for WAP2...");
+            return getWAP2Url(baseUrl);
+        } else if (WIFI.equals(transportType)) {
+            Logger.debug("Preparing url for WiFi...");
+            return getWiFiUrl(baseUrl);
+        } else if (DIRECT_TCP.equals(transportType)) {
+            Logger.debug("Preparing url for Direct TCP...");
+            return getTCPUrl(baseUrl);
+        } else if (UNITE.equals(transportType)) {
+            Logger.debug("Preparing url for Unite...");
+            return getUniteUrl(baseUrl);
+        } else {
+            return null;
         }
     }
     
@@ -129,6 +129,9 @@ public class Transports {
     }
     
     private String getWAP2Url(String baseUrl) {
+//        if (srWAP2 == null) {
+//            throw new IllegalStateException("WAP2 is not supported!");
+//        }
         return baseUrl + DEVICESIDE_TRUE + CONNECTION_UID + srWAP2.getUid();
     }
     
@@ -136,7 +139,6 @@ public class Transports {
         return baseUrl + INTERFACE_WIFI;
     }
     
-    // TODO: manage APN's. 
     /**
      * This method intends that user has filled the APN settings in device options. 
      * So the result url WILL NOT include the 
@@ -147,6 +149,9 @@ public class Transports {
     }
     
     private String getUniteUrl(String baseUrl) {
+        if (srUnite == null) {
+            throw new IllegalStateException("Unite is not supported!");
+        }
         return baseUrl + DEVICESIDE_FALSE + CONNECTION_UID + srUnite.getUid();
     }
     
@@ -222,7 +227,9 @@ public class Transports {
                     coverageWAP2=true;
                 }
                 
-                if(CoverageInfo.isCoverageSufficient(CoverageInfo.COVERAGE_MDS)){
+                // CoverageInfo.isCoverageSufficient always returns 'false' for simulator
+                if(CoverageInfo.isCoverageSufficient(CoverageInfo.COVERAGE_MDS) || 
+                        DeviceInfo.isSimulator()){
                     Logger.debug("BES-MDS, Unite coverage detected!");
                     coverageMDS=true;
                     coverageUnite=true;
