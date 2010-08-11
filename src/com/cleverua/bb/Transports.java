@@ -59,6 +59,8 @@ public class Transports {
     private boolean coverageWAP2  = false;
     private boolean coverageWiFi  = false;
     private boolean coverageUnite = false;
+    
+    private String lastSuccessfulTransport;
 
     public static Transports getInstance() {
         if (instance == null) {
@@ -115,6 +117,14 @@ public class Transports {
         }
     }
     
+    public String getLastSuccessfulTransport() {
+        return lastSuccessfulTransport;
+    }
+
+    public void setLastSuccessfulTransport(String lastSuccessfulTransport) {
+        this.lastSuccessfulTransport = lastSuccessfulTransport;
+    }
+
     private String getMDSUrl(String url) {
         return url + DEVICESIDE_FALSE;
     }
