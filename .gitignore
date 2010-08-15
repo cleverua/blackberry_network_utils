@@ -7,5 +7,5 @@
 *.debug
 *.rapc
 *.csl
-eclipse_project/
+eclipse_projects/
 doc

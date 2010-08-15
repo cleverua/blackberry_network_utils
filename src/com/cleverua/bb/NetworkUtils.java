@@ -14,7 +14,6 @@ public class NetworkUtils {
     public static final TransportPriorities CONSUMER_TRANSPORT_PRIORITIES = new TransportPriorities(CONSUMER_PRIORITIES);
     public static final TransportPriorities ENTERPRISE_TRANSPORT_PRIORITIES = new TransportPriorities(ENTERPRISE_PRIORITIES);
     
-
     public static String getConnectionUrl(String baseUrl, String transportType) {
         Transports transports = Transports.getInstance();
         if (transports.isAcceptable(transportType)) {

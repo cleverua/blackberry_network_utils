@@ -17,7 +17,7 @@ public class Transports {
     private static final String CONNECTION_TYPE_BIS = ";ConnectionType=mds-public";
     
     public static final String MDS         = "MDS";
-    public static final String BIS         = "BIS";
+    private static final String BIS         = "BIS";
     private static final String WAP        = "WAP 1.x";    // WAP 1.x is not supported yet
     public static final String WAP2        = "WAP2";
     public static final String WIFI        = "WiFi";
@@ -79,7 +79,6 @@ public class Transports {
         } else if (WAP2.equals(transportType)) {
             return coverageWAP2 && (srWAP2 != null);
         } else if (WIFI.equals(transportType)) {
-//          return coverageWiFi && (srWiFi != null);
             return coverageWiFi;
         } else if (DIRECT_TCP.equals(transportType)) {
             return coverageTCP;   
@@ -139,9 +138,6 @@ public class Transports {
     }
     
     private String getWAP2Url(String baseUrl) {
-//        if (srWAP2 == null) {
-//            throw new IllegalStateException("WAP2 is not supported!");
-//        }
         return baseUrl + DEVICESIDE_TRUE + CONNECTION_UID + srWAP2.getUid();
     }
     
@@ -245,7 +241,6 @@ public class Transports {
                     coverageUnite=true;
                 }   
             }
-            
             if(RadioInfo.areWAFsSupported(RadioInfo.WAF_WLAN) /* does the device support WiFi? */ && 
                     WLANInfo.getWLANState()==WLANInfo.WLAN_STATE_CONNECTED /* is the WiFi connected? */){
                 Logger.debug("WiFi coverage detected!");
