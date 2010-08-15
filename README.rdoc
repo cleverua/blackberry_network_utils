@@ -1,0 +1,18 @@
+== DESCRIPTION
+
+Network utils can be used in network applications for BlackBerry.
+
+=== Transports class
+
+Provides methods for checking of the network accessibility, retrieving of the connection url for different types of transport.
+Supported network types are MDS, WAP2, WIFI, DIRECT_TCP, UNITE. Transports class also contains <b>lastSuccessfulTransport</b>
+field for optimization.
+
+=== Network Utils
+
+Provides methods for convenient work with Transport class fuctionalities.
+ 
+
+== EXAMPLE
+
+To see an example please launch NetworkDemoApplication in your BlackBerry device simulator. 
