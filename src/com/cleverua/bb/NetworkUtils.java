@@ -14,14 +14,22 @@ public class NetworkUtils {
     public static final TransportPriorities CONSUMER_TRANSPORT_PRIORITIES = new TransportPriorities(CONSUMER_PRIORITIES);
     public static final TransportPriorities ENTERPRISE_TRANSPORT_PRIORITIES = new TransportPriorities(ENTERPRISE_PRIORITIES);
     
+
     public static String getConnectionUrl(String baseUrl, String transportType) {
+        Logger.debug("Obtaining connection url for transport type: " + transportType);
         Transports transports = Transports.getInstance();
         if (transports.isAcceptable(transportType)) {
+            Logger.debug(transportType + " is acceptable!");
             String url = transports.getUrlForTransport(baseUrl, transportType);
             if (testHTTP(url)) {
+                Logger.debug("Url test successful!");
                 transports.setLastSuccessfulTransport(transportType);
                 return url;
+            } else {
+                Logger.debug("Url test failed!");
             }
+        } else {
+            Logger.debug(transportType + " is not acceptable!");
         }
         return null;
     }
@@ -30,13 +38,16 @@ public class NetworkUtils {
         Transports transports = Transports.getInstance();
         
         String lastSuccessfulTransport = transports.getLastSuccessfulTransport();
-        if ((lastSuccessfulTransport != null) && 
+        Logger.debug("Last successful transport is " + lastSuccessfulTransport);
+        if (StringUtils.isNotBlank(lastSuccessfulTransport) && 
                 transportPriorities.containsTransport(lastSuccessfulTransport)) {
+            Logger.debug("Transport priorities contains sucessful transport!");
             String url  = getConnectionUrl(baseUrl, lastSuccessfulTransport);
             if (url != null) {
                 return url;
             }
         }
+        Logger.debug("Last successful transport unknown or unavailable! Going to check priorities...");
         String[] priorities = transportPriorities.getPriorities();
         for (int i = 0; i < priorities.length; i++) {
             String transportType = priorities[i];
@@ -49,11 +60,15 @@ public class NetworkUtils {
     }
 
     public static boolean testConnection(String baseUrl, String transportType) {
+        Logger.debug("Performing test of the " + transportType + " for connection " + baseUrl);
         if (Transports.getInstance().isAcceptable(transportType)) {
+            Logger.debug(transportType + " is acceptable!");
             String url = Transports.getInstance().getUrlForTransport(baseUrl, transportType);
             return testHTTP(url);
+        } else {
+            Logger.debug(transportType + " is not acceptable!");
+            return false;
         }
-        return false;
     }
     
     private static boolean testHTTP(String url) {

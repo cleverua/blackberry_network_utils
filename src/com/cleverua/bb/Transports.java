@@ -17,7 +17,7 @@ public class Transports {
     private static final String CONNECTION_TYPE_BIS = ";ConnectionType=mds-public";
     
     public static final String MDS         = "MDS";
-    private static final String BIS         = "BIS";
+    public static final String BIS         = "BIS";
     private static final String WAP        = "WAP 1.x";    // WAP 1.x is not supported yet
     public static final String WAP2        = "WAP2";
     public static final String WIFI        = "WiFi";
@@ -79,6 +79,7 @@ public class Transports {
         } else if (WAP2.equals(transportType)) {
             return coverageWAP2 && (srWAP2 != null);
         } else if (WIFI.equals(transportType)) {
+//          return coverageWiFi && (srWiFi != null);
             return coverageWiFi;
         } else if (DIRECT_TCP.equals(transportType)) {
             return coverageTCP;   
@@ -93,21 +94,27 @@ public class Transports {
         if (MDS.equals(transportType)) {
             Logger.debug("Preparing url for MDS...");
             return getMDSUrl(baseUrl);
+            
         } else if (BIS.equals(transportType)) {            
             Logger.debug("Preparing url for BIS...");
             return getBISUrl(baseUrl);
+            
         } else if (WAP.equals(transportType)) {
             Logger.debug("Preparing url for WAP 1.x...");
             return getWAPUrl(baseUrl);
+            
         } else if (WAP2.equals(transportType)) {
             Logger.debug("Preparing url for WAP2...");
             return getWAP2Url(baseUrl);
+            
         } else if (WIFI.equals(transportType)) {
             Logger.debug("Preparing url for WiFi...");
             return getWiFiUrl(baseUrl);
+            
         } else if (DIRECT_TCP.equals(transportType)) {
             Logger.debug("Preparing url for Direct TCP...");
             return getTCPUrl(baseUrl);
+            
         } else if (UNITE.equals(transportType)) {
             Logger.debug("Preparing url for Unite...");
             return getUniteUrl(baseUrl);
@@ -138,7 +145,10 @@ public class Transports {
     }
     
     private String getWAP2Url(String baseUrl) {
-        return baseUrl + DEVICESIDE_TRUE + CONNECTION_UID + srWAP2.getUid();
+//        if (srWAP2 == null) {
+//            throw new IllegalStateException("WAP2 is not supported!");
+//        }
+        return baseUrl + DEVICESIDE_TRUE + CONNECTION_UID + StringUtils.encodeUrl(srWAP2.getUid());
     }
     
     private String getWiFiUrl(String baseUrl) {
@@ -158,7 +168,7 @@ public class Transports {
         if (srUnite == null) {
             throw new IllegalStateException("Unite is not supported!");
         }
-        return baseUrl + DEVICESIDE_FALSE + CONNECTION_UID + srUnite.getUid();
+        return baseUrl + DEVICESIDE_FALSE + CONNECTION_UID + StringUtils.encodeUrl(srUnite.getUid());
     }
     
     private Transports() {
@@ -166,6 +176,7 @@ public class Transports {
     }
 
     private void init() {
+        Logger.debug(" ====== Transports detection and initialization ===== ");
         ServiceBook sb = ServiceBook.getSB();
         ServiceRecord[] records = sb.getRecords();
 
@@ -241,12 +252,14 @@ public class Transports {
                     coverageUnite=true;
                 }   
             }
+            
             if(RadioInfo.areWAFsSupported(RadioInfo.WAF_WLAN) /* does the device support WiFi? */ && 
                     WLANInfo.getWLANState()==WLANInfo.WLAN_STATE_CONNECTED /* is the WiFi connected? */){
                 Logger.debug("WiFi coverage detected!");
                 coverageWiFi = true;
             }
         }
+        Logger.debug(" ====== End of detection and initialization ===== ");
     }
 
     /**
