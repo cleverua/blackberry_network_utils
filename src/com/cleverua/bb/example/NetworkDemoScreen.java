@@ -8,6 +8,7 @@ import net.rim.device.api.ui.component.LabelField;
 import net.rim.device.api.ui.component.ObjectChoiceField;
 import net.rim.device.api.ui.container.MainScreen;
 
+import com.cleverua.bb.NetworkTypes;
 import com.cleverua.bb.NetworkUtils;
 import com.cleverua.bb.Transports;
 
@@ -20,8 +21,8 @@ public class NetworkDemoScreen extends MainScreen {
 
 	private static final String BASE_URL = "http://www.google.com";
 
-	private static final String[] NETWORK_TYPES = new String[] { Transports.AUTOMATIC,
-			Transports.MDS, Transports.WAP2, Transports.WIFI, Transports.DIRECT_TCP, Transports.UNITE };
+	private static final String[] NETWORK_TYPES = new String[] { NetworkTypes.AUTOMATIC,
+	    NetworkTypes.MDS, NetworkTypes.WAP2, NetworkTypes.WIFI, NetworkTypes.DIRECT_TCP, NetworkTypes.UNITE };
 	
 	private ObjectChoiceField networkTypes;
 	
@@ -52,8 +53,8 @@ public class NetworkDemoScreen extends MainScreen {
 	private void performTest() {
 		String networkType = getSelectedNetworkType();
 		String url = null;
-		if (Transports.AUTOMATIC.equals(networkType)) {
-			url = NetworkUtils.getConnectionUrl(BASE_URL, NetworkUtils.CONSUMER_TRANSPORT_PRIORITIES); 
+		if (NetworkTypes.AUTOMATIC.equals(networkType)) {
+			url = NetworkUtils.getConnectionUrl(BASE_URL, NetworkTypes.CONSUMER_NETWORK_PRIORITIES); 
 		} else {
 			url = NetworkUtils.getConnectionUrl(BASE_URL, networkType);
 		}

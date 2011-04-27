@@ -10,20 +10,15 @@ import net.rim.device.api.system.DeviceInfo;
 import net.rim.device.api.system.RadioInfo;
 import net.rim.device.api.system.WLANInfo;
 import net.rim.device.api.util.DataBuffer;
+import net.rim.device.api.util.TLEUtilities;
 
 public class Transports {
+    private static final int BYTE_CONFIG_TYPE   = 12;
+    private static final int BYTE_PROXY_ADDRESS = 28;
+    
     private static final String INTERFACE_WIFI = ";interface=wifi";
     private static final String CONNECTION_UID = ";ConnectionUID=";
     private static final String CONNECTION_TYPE_BIS = ";ConnectionType=mds-public";
-    
-    public static final String MDS         = "MDS";
-    public static final String BIS         = "BIS";
-    private static final String WAP        = "WAP 1.x";    // WAP 1.x is not supported yet
-    public static final String WAP2        = "WAP2";
-    public static final String WIFI        = "WiFi";
-    public static final String DIRECT_TCP  = "Direct TCP";
-    public static final String UNITE       = "Unite";
-    public static final String AUTOMATIC   = "Automatic";
     
     /** 
      * CONFIG_TYPE_ constants which are used to find appropriate service books.
@@ -51,6 +46,7 @@ public class Transports {
     private ServiceRecord srWAP2;
 //    private ServiceRecord srWiFi;
     private ServiceRecord srUnite;
+    private ServiceRecord srTCP;
 
     private boolean coverageTCP   = false;
     private boolean coverageMDS   = false;
@@ -69,53 +65,80 @@ public class Transports {
         return instance;
     }
 
+    public boolean isMDSAcceptable() {
+        return coverageMDS && (srMDS != null);
+    }
+    
+    public boolean isUniteAcceptable() {
+        return coverageUnite && (srUnite != null);
+    }
+
+    public boolean isTCPAcceptable() {
+        return coverageTCP;
+    }
+
+    public boolean isWiFiAcceptable() {
+        return coverageWiFi;
+    }
+
+    public boolean isWAP2Acceptable() {
+        return coverageWAP2 && (srWAP2 != null);
+    }
+
+    public boolean isWAPAcceptable() {
+        return coverageWAP && (srWAP != null);
+    }
+
+    public boolean isBISAcceptable() {
+        return coverageBIS && (srBIS != null);
+    }
+    
     public boolean isAcceptable(String transportType) {
-        if (MDS.equals(transportType)) {
-            return coverageMDS && (srMDS != null);
-        } else if (BIS.equals(transportType)) {
-            return coverageBIS && (srBIS != null);
-        } else if (WAP.equals(transportType)) {
-            return coverageWAP && (srWAP != null);
-        } else if (WAP2.equals(transportType)) {
-            return coverageWAP2 && (srWAP2 != null);
-        } else if (WIFI.equals(transportType)) {
-//          return coverageWiFi && (srWiFi != null);
-            return coverageWiFi;
-        } else if (DIRECT_TCP.equals(transportType)) {
-            return coverageTCP;   
-        } else if (UNITE.equals(transportType)) {
-            return coverageUnite && (srUnite != null);
+        if (NetworkTypes.MDS.equals(transportType)) {
+            return isMDSAcceptable();
+        } else if (NetworkTypes.BIS.equals(transportType)) {
+            return isBISAcceptable();
+//        } else if (NetworkTypes.WAP.equals(transportType)) {
+//            return isWAPAcceptable();
+        } else if (NetworkTypes.WAP2.equals(transportType)) {
+            return isWAP2Acceptable();
+        } else if (NetworkTypes.WIFI.equals(transportType)) {
+            return isWiFiAcceptable();
+        } else if (NetworkTypes.DIRECT_TCP.equals(transportType)) {
+            return isTCPAcceptable();   
+        } else if (NetworkTypes.UNITE.equals(transportType)) {
+            return isUniteAcceptable();
         } else {
             return false;
         }
     }
-    
+
     public String getUrlForTransport(String baseUrl, String transportType) {
-        if (MDS.equals(transportType)) {
+        if (NetworkTypes.MDS.equals(transportType)) {
             Logger.debug("Preparing url for MDS...");
             return getMDSUrl(baseUrl);
             
-        } else if (BIS.equals(transportType)) {            
+        } else if (NetworkTypes.BIS.equals(transportType)) {            
             Logger.debug("Preparing url for BIS...");
             return getBISUrl(baseUrl);
             
-        } else if (WAP.equals(transportType)) {
-            Logger.debug("Preparing url for WAP 1.x...");
-            return getWAPUrl(baseUrl);
+//        } else if (NetworkTypes.WAP.equals(transportType)) {
+//            Logger.debug("Preparing url for WAP 1.x...");
+//            return getWAPUrl(baseUrl);
             
-        } else if (WAP2.equals(transportType)) {
+        } else if (NetworkTypes.WAP2.equals(transportType)) {
             Logger.debug("Preparing url for WAP2...");
             return getWAP2Url(baseUrl);
             
-        } else if (WIFI.equals(transportType)) {
+        } else if (NetworkTypes.WIFI.equals(transportType)) {
             Logger.debug("Preparing url for WiFi...");
             return getWiFiUrl(baseUrl);
             
-        } else if (DIRECT_TCP.equals(transportType)) {
+        } else if (NetworkTypes.DIRECT_TCP.equals(transportType)) {
             Logger.debug("Preparing url for Direct TCP...");
             return getTCPUrl(baseUrl);
             
-        } else if (UNITE.equals(transportType)) {
+        } else if (NetworkTypes.UNITE.equals(transportType)) {
             Logger.debug("Preparing url for Unite...");
             return getUniteUrl(baseUrl);
         } else {
@@ -131,40 +154,45 @@ public class Transports {
         this.lastSuccessfulTransport = lastSuccessfulTransport;
     }
 
-    private String getMDSUrl(String url) {
+    public String getMDSUrl(String url) {
         return url + DEVICESIDE_FALSE;
     }
 
-    private String getBISUrl(String baseUrl) {
+    public String getBISUrl(String baseUrl) {
         return baseUrl + DEVICESIDE_FALSE + CONNECTION_TYPE_BIS;
     }
     
     // TODO: Manage WAP's attributes (for WAP 1.x)
-    private String getWAPUrl(String baseUrl) {
+    public String getWAPUrl(String baseUrl) {
         return baseUrl + DEVICESIDE_TRUE;
     }
     
-    private String getWAP2Url(String baseUrl) {
+    public String getWAP2Url(String baseUrl) {
 //        if (srWAP2 == null) {
 //            throw new IllegalStateException("WAP2 is not supported!");
 //        }
         return baseUrl + DEVICESIDE_TRUE + CONNECTION_UID + StringUtils.encodeUrl(srWAP2.getUid());
     }
     
-    private String getWiFiUrl(String baseUrl) {
+    public String getWiFiUrl(String baseUrl) {
         return baseUrl + INTERFACE_WIFI;
     }
     
     /**
-     * This method intends that user has filled the APN settings in device options. 
+     * If there is no TCP service record on the device the current method intends 
+     * that user has filled the APN settings in device options. 
      * So the result url WILL NOT include the 
      * <b>apn</b>, <b>tunnelauthusername</b> and <b>tunnelauthpassword</b> parameters. 
      */
-    private String getTCPUrl(String baseUrl) {
-        return baseUrl + DEVICESIDE_TRUE;
+    public String getTCPUrl(String baseUrl) {
+        if (srTCP == null) {
+            return baseUrl + DEVICESIDE_TRUE;
+        } else {
+            return baseUrl + DEVICESIDE_TRUE + CONNECTION_UID + StringUtils.encodeUrl(srTCP.getUid());
+        }
     }
     
-    private String getUniteUrl(String baseUrl) {
+    public String getUniteUrl(String baseUrl) {
         if (srUnite == null) {
             throw new IllegalStateException("Unite is not supported!");
         }
@@ -217,9 +245,16 @@ public class Transports {
                 }
                 // Wap2.0
                 if (cid.indexOf(WPTCP_STR) != -1 && uid.indexOf(WIFI_STR) == -1 && uid.indexOf(MMS_STR) == -1) {
-                    Logger.debug("WAP 2 record detected!");
-                    Logger.debug("cid = " + cid + ", uid = " + uid);
-                    srWAP2 = myRecord;
+                    String httpProxyAddress = getDataString(myRecord, BYTE_PROXY_ADDRESS);
+                    if ((httpProxyAddress == null) || StringUtils.isBlank(httpProxyAddress.trim())) {
+                        Logger.debug("TCP record detected!");
+                        Logger.debug("cid = " + cid + ", uid = " + uid);
+                        srTCP = myRecord;
+                    } else {
+                        Logger.debug("WAP 2 record detected!");
+                        Logger.debug("cid = " + cid + ", uid = " + uid + ", proxy = " + httpProxyAddress);
+                        srWAP2 = myRecord;
+                    }
                 }
                 // Unite
                 if(getConfigType(myRecord) == CONFIG_TYPE_BES && myRecord.getName().equalsIgnoreCase(UNITE_STR)) {
@@ -264,37 +299,55 @@ public class Transports {
 
     /**
      * Gets the config type of a ServiceRecord using getDataInt below
-     * @param record    A ServiceRecord
+     * @param record a ServiceRecord
      * @return  configType of the ServiceRecord
      */
     private int getConfigType(ServiceRecord record) {
-        return getDataInt(record, 12);
+        return getDataInt(record, BYTE_CONFIG_TYPE);
     }
 
     /**
-     * Gets the config type of a ServiceRecord. Passing 12 as type returns the configType.    
-     * @param record    A ServiceRecord
-     * @param type  dataType
-     * @return  configType
+     * the int Value corresponding to the parameter tag from the IPPP Service Record's encoded Application Data.    
+     * @param record a ServiceRecord
+     * @param type  a byte representing the IPPP Application Data specific parameter tag.
+     * @return  an int representing the value assigned to the particular parameter tag or -1 if the encoded value is not found
      */
     private int getDataInt(ServiceRecord record, int type)
     {
+        int dataInt = -1;
         DataBuffer buffer = null;
         buffer = getDataBuffer(record, type);
 
-        if (buffer != null){
+        if ((buffer != null) && ConverterUtilities.findType(buffer, type)) {
             try {
-                return ConverterUtilities.readInt(buffer);
+                dataInt = ConverterUtilities.readInt(buffer);
             } catch (EOFException e) {
-                return -1;
+              // dataInt remains -1  
             }
         }
-        return -1;
+        return dataInt;
     }
 
-    /** 
-     * Utility Method for getDataInt()
+    /**
+     * Determines the String Value corresponding to the parameter tag from the WPTCP Service Record's encoded Application Data    
+     * @param record a ServiceRecord
+     * @param type  a byte representing the WPTCP Application Data specific parameter tag.
+     * @return  a String representing the value assigned to the particular parameter tag or <b>null</b> if the encoded value does not exist.
      */
+    private String getDataString(ServiceRecord record, int type) {
+        String stringData = null;
+        DataBuffer buffer = null;
+        buffer = getDataBuffer(record, type);
+        if ((buffer != null) && TLEUtilities.findType(buffer, type)) {
+            try {
+                stringData = TLEUtilities.readStringField(buffer, type);
+            } catch (Throwable e) {
+                // stringData remains null
+            }
+        }
+        return stringData;
+    }
+    
     private DataBuffer getDataBuffer(ServiceRecord record, int type) {
         byte[] data = record.getApplicationData();
         if (data != null) {
@@ -303,9 +356,6 @@ public class Transports {
                 buffer.readByte();
             } catch (EOFException e1) {
                 return null;
-            }
-            if (ConverterUtilities.findType(buffer, type)) {
-                return buffer;
             }
         }
         return null;
