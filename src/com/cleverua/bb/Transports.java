@@ -18,7 +18,7 @@ public class Transports {
     
     private static final String INTERFACE_WIFI = ";interface=wifi";
     private static final String CONNECTION_UID = ";ConnectionUID=";
-    private static final String CONNECTION_TYPE_BIS = ";ConnectionType=mds-public";
+    private static final String CONNECTION_TYPE_BIS = ""; // only for RIM partners
     
     /** 
      * CONFIG_TYPE_ constants which are used to find appropriate service books.
