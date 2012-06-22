@@ -20,6 +20,7 @@ public class Transports {
     private static final String CONNECTION_UID = ";ConnectionUID=";
     // only for RIM partners : 
     // http://www.blackberryforums.com/developer-forum/104107-anyone-heard-deiceside-false-connectiontype-mds-public.html
+    // http://www.blackberryforums.com/developer-forum/204371-confused-between-bis-bes-network-connetion-strings.html
     private static final String CONNECTION_TYPE_BIS = "";
     
     /** 
