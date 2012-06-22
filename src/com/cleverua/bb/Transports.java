@@ -18,7 +18,9 @@ public class Transports {
     
     private static final String INTERFACE_WIFI = ";interface=wifi";
     private static final String CONNECTION_UID = ";ConnectionUID=";
-    private static final String CONNECTION_TYPE_BIS = ""; // only for RIM partners
+    // only for RIM partners : 
+    // http://www.blackberryforums.com/developer-forum/104107-anyone-heard-deiceside-false-connectiontype-mds-public.html
+    private static final String CONNECTION_TYPE_BIS = "";
     
     /** 
      * CONFIG_TYPE_ constants which are used to find appropriate service books.
